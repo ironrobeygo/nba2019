@@ -1,27 +1,50 @@
 <?php
+use Illuminate\Support;
+use Jenssegers\Blade\Blade;
+require_once('vendor/autoload.php');
 require_once('classes/Exporter.php');
-require_once('traits/PlayersTrait.php');
-require_once('traits/ReportsTrait.php');
+require_once('models/Player.php');
+require_once('models/Report.php');
+require_once('include/utils.php');
 
-class Controller extends Exporter{
-    use PlayersTrait, ReportsTrait;
+class Controller{
+
+    protected $blade, $args, $type, $format;
+
     public function __construct($args=null) {
+        $this->blade = new Blade('views', 'cache');
+
         $this->args = $args;
+        $this->type = isset($this->args['type']) ? $this->args['type'] : null;
+        $this->format = isset($this->args['format']) ? $this->args['format'] : 'html';
+
+        $method = $this->args['page'];
+        $this->$method();
     }
 
-    public function export($type, $format) {
-        $data = $this->getData($type);
+    public function export() {
+        $player = new Player($this->args);
+        $data = $player->getPlayerData($this->type);
         if (!$data) {
             exit("Error: No data found!");
         }
-        return $this->format($data, $format);
+        $export = new Exporter();
+        echo $export->format($data, $this->format);
     }
 
-    public function report($report){
-        $data = $this->getReportData($report);
-        if (!$data) {
-            exit("Error: No data found!");
+    public function report(){
+
+        $report = new Report();
+
+        $queries = array(
+            'Example Query' => 'getTeams',
+            'Report 1 - Best 3pt Shooters' => 'best_3pt_shooter',
+            'Report 2 - Best 3pt Shooting Teams' => 'best_3pt_shooting_team',
+        );
+
+        foreach($queries as $key => $value){
+            $queries[$key] = $report->getReportData($value);
         }
-        return $data;
+        echo $this->blade->render('report', ['queries' => $queries, 'utils' => new Utils]);
     }
 }
