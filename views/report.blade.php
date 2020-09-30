@@ -5,7 +5,7 @@
 </head>
 <body>
 	@foreach($queries as $key => $value)
-		<h1>{{ $key }}</h1>
+		<h2>{{ $key }}</h2>
 		{!! $utils->asTable($value) !!}
 	@endforeach
 </body>

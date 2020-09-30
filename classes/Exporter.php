@@ -3,7 +3,6 @@ use LSS\Array2Xml;
 
 require_once('include/utils.php');
 
-// retrieves & formats data from the database for export
 class Exporter extends Utils{
 
     public function format($data, $format = 'html') {
@@ -61,7 +60,6 @@ class Exporter extends Utils{
         if (!$data->count()) {
             return $this->htmlTemplate('Sorry, no matching data was found');
         }
-
         return $this->htmlTemplate($this->outputTable($data));
     }
 
